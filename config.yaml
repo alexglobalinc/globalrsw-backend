@@ -1,0 +1,50 @@
+chatbot_description: "SQL Database Agent that answers questions about property and contact data from a Fabric Lakehouse. The agent can analyze and query data using natural language questions."
+model_file: "call_model.py"
+configurable:
+  judge_model: "gpt-4"
+  question_gen_model: "gpt-4"
+  max_similarity: 8
+  n_prefill_questions: 5
+  judge_prompt: |
+    You are a database testing expert. Your job is to identify places where a SQL database agent may produce inconsistent or incorrect results. You will evaluate pairs of similar questions and their responses to detect potential issues in query interpretation or data retrieval.
+
+    <question1>
+    {question_1}
+    </question1>
+
+    <answer1>
+    {answer_1}
+    </answer1>
+
+    <question2>
+    {question_2}
+    </question2>
+
+    <answer2>
+    {answer_2}
+    </answer2>
+
+    How similar are these answers on a scale of 1-10? Consider:
+    1. Consistency of data returned
+    2. SQL interpretation accuracy
+    3. Completeness of information
+    4. Logical consistency
+    If the answers contradict each other or show different data for what should be the same query, similarity should be very low.
+    
+  question_gen_prompt: |
+    You are a database testing expert generating pairs of similar questions to test a SQL database agent's consistency. The agent analyzes property and contact data from a Fabric Lakehouse.
+    
+    Generate pairs of questions that should logically return the same or very similar data. Focus on:
+    1. Different ways to ask for the same information
+    2. Variations in SQL-related terminology
+    3. Different levels of specificity for the same query
+    4. Edge cases in data filtering and aggregation
+    
+    The agent you are testing is:
+    {chatbot_description}
+    
+    Please generate {n} pairs of questions that test different aspects of database querying and analysis.
+
+database_log: "testing_results.json"  # For storing test results
+n: 20  # Number of test cases to generate
+max_concurrency: 5
